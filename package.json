@@ -1,0 +1,20 @@
+{
+	"name": "davehttp",
+	"description": "The heart of a Node-based web server to be included in other apps. I got tired of writing the same code over and over.",
+	"author": "Dave Winer <dave@smallpicture.com>",
+	"license": "MIT",
+	"version": "0.4.0",
+	"main": "davehttp.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/scripting/http.git"
+		},
+	"files": [
+		"davehttp.js"
+		],
+	"dependencies" : {
+		"request": "*",
+		"strftime": "*",
+		"daveutils": "*"
+		} 
+	}
