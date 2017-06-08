@@ -26,38 +26,8 @@ function startup (config, callback) {
 	console.log ("davehttp.startup: launching on port == " + config.port);
 	function handleRequest (httpRequest, httpResponse) {
 		function doHttpReturn (code, type, s) { //10/7/16 by DW
-			httpResponse.writeHead (code, {"Content-Type": type, "Access-Control-Allow-Origin": "*"});
+			httpResponse.writeHead (code, {"Content-Type": type});
 			httpResponse.end (s);    
-			}
-		function writeHead (type) {
-			if (type == undefined) {
-				type = "text/plain";
-				}
-			httpResponse.writeHead (200, {"Content-Type": type, "Access-Control-Allow-Origin": "*"});
-			}
-		function return404 () {
-			get404page (function (s, type) {
-				httpResponse.writeHead (404, {"Content-Type": type, "Access-Control-Allow-Origin": "*"});
-				httpResponse.end (s);    
-				});
-			}
-		function returnRedirect (url) {
-			httpResponse.writeHead (302, {"location": url});
-			httpResponse.end ("Redirect to this URL: " + url);
-			}
-		function respondWithObject (obj) {
-			writeHead ("application/json");
-			httpResponse.end (utils.jsonStringify (obj));    
-			}
-		function findDomainOutline (host, callback) { //determines which outline contains the indicated host
-			var lowerhost = utils.stringLower (host);
-			for (var x in globalDomains) {
-				if (utils.stringLower (x) == lowerhost) {
-					callback (globalDomains [x]);
-					return;
-					}
-				}
-			callback (undefined);
 			}
 		
 		var parsedUrl = urlpack.parse (httpRequest.url, true);
