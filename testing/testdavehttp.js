@@ -14,7 +14,7 @@ function startup () {
 				theRequest.httpReturn (200, "text/plain", theRequest.params.a + theRequest.params.b);
 				return;
 			}
-		theRequest.httpReturn (503, "text/plain", "That's something we can't do for you. Sorry!! ;-(");
+		theRequest.httpReturn (500, "text/plain", "That's something we can't do for you. Sorry!! ;-(");
 		});
 	}
 

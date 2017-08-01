@@ -96,7 +96,7 @@ function startup (config, callback) {
 					}
 				catch (tryError) {
 					console.log ("handleRequest: tryError.message == " + tryError.message);
-					doHttpReturn (503, "text/plain", tryError.message);
+					doHttpReturn (500, "text/plain", tryError.message);
 					}
 				}
 			});
