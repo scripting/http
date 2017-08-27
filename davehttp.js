@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.2";  
+var myProductName = "davehttp", myVersion = "0.4.3";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -51,7 +51,7 @@ function startup (config, callback) {
 	function handleRequest (httpRequest, httpResponse) {
 		function doHttpReturn (code, type, s) { //10/7/16 by DW
 			httpResponse.writeHead (code, {"Content-Type": type});
-			httpResponse.end (s);    
+			httpResponse.end (s.toString ());    
 			}
 		
 		var parsedUrl = urlpack.parse (httpRequest.url, true);
