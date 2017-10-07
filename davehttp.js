@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.3";  
+var myProductName = "davehttp", myVersion = "0.4.6";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -47,10 +47,17 @@ var stats = {
 var flStatsDirty = false;
 
 function startup (config, callback) {
-	console.log ("davehttp.startup: launching on port == " + config.port);
+	console.log ("davehttp.startup: launching on port == " + config.port + ", v" + myVersion + ".");
 	function handleRequest (httpRequest, httpResponse) {
-		function doHttpReturn (code, type, s) { //10/7/16 by DW
-			httpResponse.writeHead (code, {"Content-Type": type});
+		function doHttpReturn (code, type, s, headers) { //10/7/16 by DW
+			if (headers === undefined) {
+				headers = new Object ();
+				}
+			headers ["Content-Type"] = type;
+			if (utils.getBoolean (config.flAllowAccessFromAnywhere)) {
+				headers ["Access-Control-Allow-Origin"] = "*";
+				}
+			httpResponse.writeHead (code, headers);
 			httpResponse.end (s.toString ());    
 			}
 		
