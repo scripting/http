@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.6";  
+var myProductName = "davehttp", myVersion = "0.4.12";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -23,7 +23,6 @@ var myProductName = "davehttp", myVersion = "0.4.6";
 	*/
 
 exports.start = startup; 
-
 const fs = require ("fs");
 const request = require ("request");
 const http = require ("http"); 
@@ -48,6 +47,13 @@ var flStatsDirty = false;
 
 function startup (config, callback) {
 	console.log ("davehttp.startup: launching on port == " + config.port + ", v" + myVersion + ".");
+	
+	if (config.flPostEnabled === undefined) { //1/3/18 by DW
+		config.flPostEnabled = false;
+		}
+	
+	console.log ("\ndavehttp.startup: config == " + utils.jsonStringify (config));
+	
 	function handleRequest (httpRequest, httpResponse) {
 		function doHttpReturn (code, type, s, headers) { //10/7/16 by DW
 			if (headers === undefined) {
@@ -121,19 +127,32 @@ function startup (config, callback) {
 				stats.whenLastHit = myRequest.now;
 				stats.ctHitsToday++;
 				flStatsDirty = true;
-			if (callback !== undefined) {
-				try {
-					callback (myRequest);
+			
+			function callBackToApp (theRequest) {
+				if (callback !== undefined) {
+					try {
+						callback (theRequest);
+						}
+					catch (tryError) {
+						console.log ("davehttp: tryError.message == " + tryError.message);
+						doHttpReturn (500, "text/plain", tryError.message);
+						}
 					}
-				catch (tryError) {
-					console.log ("handleRequest: tryError.message == " + tryError.message);
-					doHttpReturn (500, "text/plain", tryError.message);
-					}
+				}
+			if (config.flPostEnabled && (myRequest.lowermethod == "post")) {
+				let body = "";
+				httpRequest.on ("data", function (data) {
+					body += data;
+					});
+				httpRequest.on ("end", function () {
+					myRequest.postBody = body;
+					callBackToApp (myRequest);
+					});
+				}
+			else {
+				callBackToApp (myRequest);
 				}
 			});
 		}
 	http.createServer (handleRequest).listen (config.port);
 	};
-
-
-
