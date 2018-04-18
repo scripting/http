@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.12";  
+var myProductName = "davehttp", myVersion = "0.4.14";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -51,6 +51,9 @@ function startup (config, callback) {
 	if (config.flPostEnabled === undefined) { //1/3/18 by DW
 		config.flPostEnabled = false;
 		}
+	if (config.blockedAddresses === undefined) { //4/17/18 by DW
+		config.blockedAddresses = new Array ();
+		}
 	
 	console.log ("\ndavehttp.startup: config == " + utils.jsonStringify (config));
 	
@@ -67,7 +70,15 @@ function startup (config, callback) {
 			httpResponse.end (s.toString ());    
 			}
 		
+		var remoteAddress = httpRequest.connection.remoteAddress;
 		var parsedUrl = urlpack.parse (httpRequest.url, true);
+		
+		for (var i = 0; i < config.blockedAddresses.length; i++) { //4/17/18 by DW
+			if (remoteAddress == config.blockedAddresses [i]) {
+				doHttpReturn (403, "text/plain", "Forbidden.");
+				return;
+				}
+			}
 		
 		var myRequest = {
 			method: httpRequest.method,
@@ -104,7 +115,7 @@ function startup (config, callback) {
 			myRequest.params [x] = parsedUrl.query [x];
 			}
 		
-		dns.reverse (httpRequest.connection.remoteAddress, function (err, domains) {
+		dns.reverse (remoteAddress, function (err, domains) {
 			if (!err) {
 				if (domains.length > 0) {
 					myRequest.client = domains [0];
