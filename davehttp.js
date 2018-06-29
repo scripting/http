@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.14";  
+var myProductName = "davehttp", myVersion = "0.4.15";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -87,7 +87,6 @@ function startup (config, callback) {
 			lowerpath: parsedUrl.pathname.toLowerCase (),
 			params: {},
 			host: httpRequest.headers.host,
-			lowerhost: httpRequest.headers.host.toLowerCase (),
 			port: 80,
 			referrer: undefined,
 			flLocalRequest: false,
@@ -98,6 +97,13 @@ function startup (config, callback) {
 			sysResponse: httpResponse,
 			httpReturn: doHttpReturn
 			};
+		
+		if (myRequest.host !== undefined) { //4/17/18 by DW
+			myRequest.lowerhost = myRequest.host.toLowerCase ();
+			}
+		else {
+			myRequest.lowerhost = "";
+			}
 		
 		if (utils.stringContains (myRequest.host, ":")) { //set host and port
 			myRequest.port = utils.stringNthField (myRequest.host, ":", 2);
