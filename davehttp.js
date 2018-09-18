@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.15";  
+var myProductName = "davehttp", myVersion = "0.4.18";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -67,7 +67,7 @@ function startup (config, callback) {
 				headers ["Access-Control-Allow-Origin"] = "*";
 				}
 			httpResponse.writeHead (code, headers);
-			httpResponse.end (s.toString ());    
+			httpResponse.end (s); //9/17/18 by DW
 			}
 		
 		var remoteAddress = httpRequest.connection.remoteAddress;
