@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.18";  
+var myProductName = "davehttp", myVersion = "0.4.21";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -31,6 +31,8 @@ const urlpack = require ("url");
 const strftime = require ("strftime");
 const dns = require ("dns");
 const utils = require ("daveutils"); 
+
+const urlDefaultFavicon = "http://scripting.com/favicon.ico"; //11/24/18 by DW
 
 var stats = {
 	ctStarts: 0, 
@@ -67,8 +69,20 @@ function startup (config, callback) {
 				headers ["Access-Control-Allow-Origin"] = "*";
 				}
 			httpResponse.writeHead (code, headers);
-			httpResponse.end (s); //9/17/18 by DW
+			if (Buffer.isBuffer (s)) { //9/28/18 by DW
+				httpResponse.end (s); //9/17/18 by DW
+				}
+			else {
+				httpResponse.end (s.toString ());    
+				}
 			}
+		function returnRedirect (url, code) {
+			if (code === undefined) {
+				code = 302;
+				}
+			doHttpReturn (code, "text/plain", code + " REDIRECT");
+			}
+			
 		
 		var remoteAddress = httpRequest.connection.remoteAddress;
 		var parsedUrl = urlpack.parse (httpRequest.url, true);
@@ -167,7 +181,20 @@ function startup (config, callback) {
 					});
 				}
 			else {
-				callBackToApp (myRequest);
+				var flNotHandledHere = true; //11/24/18 by DW
+				switch (myRequest.lowerpath) {
+					case "/favicon.ico":
+						var urlFavIcon = urlDefaultFavicon;
+						if (config.urlFavicon !== undefined) {
+							urlFavIcon = config.urlFavicon;
+							}
+						returnRedirect (urlFavIcon);
+						flNotHandledHere = false;
+						break;
+					}
+				if (flNotHandledHere) {
+					callBackToApp (myRequest);
+					}
 				}
 			});
 		}
