@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.21";  
+var myProductName = "davehttp", myVersion = "0.4.24";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -77,10 +77,13 @@ function startup (config, callback) {
 				}
 			}
 		function returnRedirect (url, code) {
+			var headers = {
+				location: url
+				};
 			if (code === undefined) {
 				code = 302;
 				}
-			doHttpReturn (code, "text/plain", code + " REDIRECT");
+			doHttpReturn (code, "text/plain", code + " REDIRECT", headers);
 			}
 			
 		
