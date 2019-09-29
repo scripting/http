@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.24";  
+var myProductName = "davehttp", myVersion = "0.4.29";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -47,6 +47,30 @@ var stats = {
 	};
 var flStatsDirty = false;
 
+function dnsGetDomainName (ipAddress, callback) { //9/28/19 by DW
+	if (ipAddress === undefined) {
+		var err = {
+			message: "Can't get the domain name for the address because it is undefined."
+			}
+		callback (err);
+		}
+	else {
+		try {
+			dns.reverse (ipAddress, function (err, domains) {
+				if (err) {
+					callback (err);
+					}
+				else {
+					callback (undefined, domains [0]);
+					}
+				});
+			}
+		catch (err) {
+			callback (err);
+			}
+		}
+	} 
+
 function startup (config, callback) {
 	console.log ("davehttp.startup: launching on port == " + config.port + ", v" + myVersion + ".");
 	
@@ -58,6 +82,9 @@ function startup (config, callback) {
 		}
 	
 	console.log ("\ndavehttp.startup: config == " + utils.jsonStringify (config));
+	
+	
+	
 	
 	function handleRequest (httpRequest, httpResponse) {
 		function doHttpReturn (code, type, s, headers) { //10/7/16 by DW
@@ -86,15 +113,21 @@ function startup (config, callback) {
 			doHttpReturn (code, "text/plain", code + " REDIRECT", headers);
 			}
 			
+		function isBlockedAddress (theAddress) {
+			for (var i = 0; i < config.blockedAddresses.length; i++) { 
+				if (theAddress == config.blockedAddresses [i]) {
+					return (true);
+					}
+				}
+			return (false);
+			}
 		
 		var remoteAddress = httpRequest.connection.remoteAddress;
 		var parsedUrl = urlpack.parse (httpRequest.url, true);
 		
-		for (var i = 0; i < config.blockedAddresses.length; i++) { //4/17/18 by DW
-			if (remoteAddress == config.blockedAddresses [i]) {
-				doHttpReturn (403, "text/plain", "Forbidden.");
-				return;
-				}
+		if (isBlockedAddress (remoteAddress)) {
+			doHttpReturn (403, "text/plain", "Forbidden.");
+			return;
 			}
 		
 		var myRequest = {
@@ -119,6 +152,7 @@ function startup (config, callback) {
 			myRequest.lowerhost = myRequest.host.toLowerCase ();
 			}
 		else {
+			myRequest.host = ""; //9/18/19 by DW
 			myRequest.lowerhost = "";
 			}
 		
@@ -138,14 +172,20 @@ function startup (config, callback) {
 			myRequest.params [x] = parsedUrl.query [x];
 			}
 		
-		dns.reverse (remoteAddress, function (err, domains) {
+		if (typeof (remoteAddress) != "string") { //9/26/19 AM by DW -- debugging
+			console.log ("handleRequest: typeof (remoteAddress) == " + typeof (remoteAddress));
+			}
+		
+		dnsGetDomainName (remoteAddress, function (err, domain) {
 			if (!err) {
-				if (domains.length > 0) {
-					myRequest.client = domains [0];
-					}
+				myRequest.client = domain;
 				}
 			if (myRequest.client === undefined) { 
 				myRequest.client = "";
+				}
+			if (isBlockedAddress (myRequest.client)) { //9/25/19 by DW
+				doHttpReturn (403, "text/plain", "Forbidden.");
+				return;
 				}
 			if (config.flLogToConsole) {
 				console.log (myRequest.now.toLocaleTimeString () + " " + myRequest.method + " " + myRequest.host + ":" + myRequest.port + " " + myRequest.lowerpath + " " + myRequest.referrer + " " + myRequest.client);
