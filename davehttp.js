@@ -1,4 +1,4 @@
-var myProductName = "davehttp", myVersion = "0.4.29";  
+var myProductName = "davehttp", myVersion = "0.4.32";  
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -82,9 +82,6 @@ function startup (config, callback) {
 		}
 	
 	console.log ("\ndavehttp.startup: config == " + utils.jsonStringify (config));
-	
-	
-	
 	
 	function handleRequest (httpRequest, httpResponse) {
 		function doHttpReturn (code, type, s, headers) { //10/7/16 by DW
@@ -207,9 +204,10 @@ function startup (config, callback) {
 					try {
 						callback (theRequest);
 						}
-					catch (tryError) {
-						console.log ("davehttp: tryError.message == " + tryError.message);
-						doHttpReturn (500, "text/plain", tryError.message);
+					catch (err) {
+						console.log (myProductName + " v" + myVersion + ": err.message == " + err.message); 
+						console.trace (); //10/23/20 by DW
+						doHttpReturn (500, "text/plain", err.message);
 						}
 					}
 				}
@@ -241,5 +239,11 @@ function startup (config, callback) {
 				}
 			});
 		}
-	http.createServer (handleRequest).listen (config.port);
+	try { //6/21/20 by DW
+		http.createServer (handleRequest).listen (config.port);
+		}
+	catch (err) {
+		console.log (myProductName + " v" + myVersion + ": err.message == " + err.message); 
+		console.trace (); //10/23/20 by DW
+		}
 	};

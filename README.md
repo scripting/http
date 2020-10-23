@@ -4,3 +4,9 @@ This code was showing up all over the place. Handle an HTTP request with logging
 
 Dave Winer
 
+### Updates
+
+#### 10/23/20 by DW
+
+Added a call to <a href="https://nodejs.org/api/console.html#console_console_trace_message_args">console.trace</a> when there's an error in handling an HTTP request. Without it, it's hard to tell where the errant code was. 
+

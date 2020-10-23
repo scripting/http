@@ -1,4 +1,3 @@
-
 const davehttp = require ("../davehttp.js"); 
 const utils = require ("daveutils"); 
 
@@ -13,6 +12,9 @@ function startup () {
 			case "/add":
 				theRequest.httpReturn (200, "text/plain", theRequest.params.a + theRequest.params.b);
 				return;
+			case "/err":
+				var x = undefined;
+				return (x.badreference);
 			}
 		theRequest.httpReturn (500, "text/plain", "That's something we can't do for you. Sorry!! ;-(");
 		});
